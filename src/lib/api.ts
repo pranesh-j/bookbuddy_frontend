@@ -1,8 +1,9 @@
 import axios from 'axios';
 import type { Book } from '@/types';
 
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://bookbuddy-backend-pizr6y0tq-praneshs-projects-6f1c158f.vercel.app/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api',
 });
 
 export const simplifyText = async (text: string): Promise<Book> => {
