@@ -8,7 +8,19 @@ const api = axios.create({
 
 export const simplifyText = async (text: string): Promise<Book> => {
   try {
-    const response = await api.post('/process/', { text });
+    console.log('Sending request to:', process.env.NEXT_PUBLIC_API_URL);
+    console.log('With text:', text);
+    
+    const response = await api.post('/process/', 
+      { text },  // Request body
+      {          // Request config
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    console.log('Response:', response.data);
     return response.data;
   } catch (error) {
     console.error('API Error:', error);
