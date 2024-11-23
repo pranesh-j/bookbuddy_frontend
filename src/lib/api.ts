@@ -4,7 +4,20 @@ import type { Book } from '@/types';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api',
+  headers: {
+    'Content-Type': 'application/json',
+  }
 });
+
+// Add error handling
+api.interceptors.response.use(
+    response => response,
+    error => {
+        console.error('API Error:', error.response?.data || error.message);
+        throw error;
+    }
+);
+
 
 // api.ts
 export const simplifyText = async (text: string): Promise<Book> => {
