@@ -6,6 +6,7 @@ const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api',
 });
 
+// api.ts
 export const simplifyText = async (text: string): Promise<Book> => {
   try {
     console.log('Sending request to:', process.env.NEXT_PUBLIC_API_URL);
@@ -13,9 +14,9 @@ export const simplifyText = async (text: string): Promise<Book> => {
     
     const response = await api.post('/process/', 
       { text },  // Request body
-      {          // Request config
+      {          // Config object
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         }
       }
     );
