@@ -132,59 +132,48 @@ const BookBuddy = () => {
     if (!text.trim()) return;
     setIsProcessing(true);
     setError(null);
+
     try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bookbuddy-backend.vercel.app/api';
-        console.log('Attempting to make request to:', `${apiUrl}/process/`);
-        
-        // Remove withCredentials and update headers
-        const response = await axios.post(`${apiUrl}/process/`, 
-            { text },
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            }
-        );
-        console.log('Response:', response);
-        
         await controls.start({
             scale: [1, 0.95, 1],
             transition: { duration: 0.3 }
         });
-        
-        if (response.data && response.data.pages) {
-            setPages(response.data.pages);
-            setIsReading(true);
-            setCurrentBookId(response.data.id);
-            setCurrentPage(response.data.pages.length - 1);
-            await loadBooks();
 
-            if (response.data.pages.length === 1) {
-                setSuggestedTitle(response.data.title || 'Untitled Book');
-                setShowNameDialog(true);
-            }
+        let bookData;
+
+        if (currentBookId) {
+            // Add page to existing book
+            const response = await axios.post(`http://localhost:8000/api/books/${currentBookId}/add-page/`, {
+                text: text
+            });
+            bookData = response.data;
+        } else {
+            // Create new book
+            bookData = await simplifyText(text);
+        }
+
+        if (bookData && bookData.pages) {
+            setPages(bookData.pages);
+            setIsReading(true);
+            setCurrentBookId(bookData.id);
+            setCurrentPage(bookData.pages.length - 1);
+            await loadBooks();
         } else {
             throw new Error('Invalid response from server');
         }
     } catch (error) {
-        console.error('Full error:', error);
-        if (axios.isAxiosError(error)) {
-            console.error('Response data:', error.response?.data);
-            console.error('Response status:', error.response?.status);
-            console.error('Response headers:', error.response?.headers);
-            
-            // More detailed error message
-            let errorMsg = error.message;
-            if (error.response) {
-                errorMsg = `Server Error (${error.response.status}): ${error.response.data?.error || error.response.statusText}`;
-            } else if (error.request) {
-                errorMsg = 'No response received from server. Please check your internet connection.';
-            }
-            setError(errorMsg);
-        } else {
-            setError('An unexpected error occurred');
+        let errorMessage = 'Failed to process text';
+        
+        if (error instanceof Error) {
+            errorMessage = error.message;
         }
+        
+        if (axios.isAxiosError(error) && error.response) {
+            errorMessage = error.response.data?.error || error.message;
+        }
+        
+        setError(errorMessage);
+        console.error('Error:', error);
     } finally {
         setIsProcessing(false);
     }
