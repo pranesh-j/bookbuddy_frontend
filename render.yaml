@@ -2,9 +2,10 @@ services:
   - type: web
     name: bookbuddy-frontend
     env: node
-    plan: free
     buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
       - key: NEXT_PUBLIC_API_URL
-        value: https://bookbuddy-backend.onrender.com/api 
+        value: https://bookbuddy-backend-i99j.onrender.com/api
+      - key: NODE_ENV
+        value: production
